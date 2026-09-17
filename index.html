@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIMAS Sekolah — Aplikasi Surat Menyurat</title>
+<style>
+:root{
+  --bg:#f1f5f9; --card:#ffffff; --ink:#0f172a; --muted:#64748b;
+  --primary:#1e40af; --primary2:#3b82f6; --accent:#0ea5e9;
+  --green:#059669; --amber:#d97706; --red:#dc2626; --line:#e2e8f0;
+  --radius:14px; --shadow:0 8px 24px rgba(15,23,42,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+a{color:inherit}
+/* LOGIN */
+#loginPage{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(1000px 500px at 20% 10%,#dbeafe 0%,transparent 60%),radial-gradient(800px 400px at 90% 90%,#bae6fd 0%,transparent 60%),linear-gradient(135deg,#1e3a8a,#0ea5e9)}
+.login-card{background:#fff;border-radius:20px;box-shadow:var(--shadow);width:100%;max-width:920px;display:grid;grid-template-columns:1.1fr 1fr;overflow:hidden}
+.login-left{background:linear-gradient(160deg,#1e40af,#0284c7);color:#fff;padding:36px;display:flex;flex-direction:column;justify-content:center}
+.login-left h1{margin:0 0 10px;font-size:30px}
+.login-left p{opacity:.9;line-height:1.6}
+.badge{display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);padding:6px 12px;border-radius:999px;font-size:13px;margin-bottom:14px}
+.feat{margin:18px 0 0;padding:0;list-style:none;font-size:14px;line-height:2}
+.feat li::before{content:"✓ ";font-weight:700}
+.login-right{padding:32px}
+.login-right h2{margin:0 0 6px}
+.muted{color:var(--muted);font-size:14px}
+.field{margin:14px 0}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;background:#f8fafc}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--primary2);background:#fff}
+.btn{border:0;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.btn-primary{background:var(--primary);color:#fff;width:100%}
+.btn-primary:hover{background:#1e3a8a}
+.btn-ghost{background:#f1f5f9;color:var(--ink)}
+.btn-small{padding:7px 11px;font-size:13px;border-radius:8px}
+.btn-green{background:var(--green);color:#fff}
+.btn-amber{background:var(--amber);color:#fff}
+.btn-red{background:var(--red);color:#fff}
+.btn-blue{background:var(--primary2);color:#fff}
+.btn-outline{background:#fff;border:1.5px solid var(--line)}
+.demo-box{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;padding:12px;font-size:13px;margin-top:14px;line-height:1.7}
+/* APP */
+#app{display:none;min-height:100vh}
+.sidebar{width:260px;background:#0f172a;color:#e2e8f0;position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column;z-index:20}
+.brand{padding:20px;border-bottom:1px solid rgba(255,255,255,.12)}
+.brand h3{margin:0;font-size:17px}
+.brand small{color:#94a3b8}
+.nav{padding:12px;display:flex;flex-direction:column;gap:4px;flex:1;overflow:auto}
+.nav button{background:transparent;border:0;color:#cbd5e1;text-align:left;padding:11px 12px;border-radius:10px;cursor:pointer;font-size:14px;display:flex;gap:10px;align-items:center}
+.nav button.active,.nav button:hover{background:rgba(255,255,255,.12);color:#fff}
+.userbox{padding:14px;border-top:1px solid rgba(255,255,255,.12);font-size:13px}
+.main{margin-left:260px;padding:24px;max-width:1200px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.topbar h2{margin:0}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;border:1px solid #eef2f7}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stat{position:relative;overflow:hidden}
+.stat b{font-size:28px;display:block}
+.stat span{color:var(--muted);font-size:13px}
+.stat i{position:absolute;right:12px;top:12px;font-size:30px;opacity:.18;font-style:normal}
+.page{display:none}
+.page.active{display:block;animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0;align-items:center}
+.toolbar input,.toolbar select{padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;background:#fff;border-radius:12px;overflow:hidden}
+th,td{padding:10px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:#f8fafc;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:#475569}
+tr:hover td{background:#f8fafc}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.p-menunggu{background:#fef3c7;color:#92400e}
+.p-diproses{background:#dbeafe;color:#1e40af}
+.p-selesai{background:#dcfce7;color:#166534}
+.p-arsip{background:#f1f5f9;color:#475569}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.bar{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px}
+.bar .track{flex:1;background:#e2e8f0;border-radius:999px;height:12px;overflow:hidden}
+.bar .fill{height:100%;background:linear-gradient(90deg,var(--primary2),var(--accent))}
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:16px;max-width:720px;width:100%;max-height:92vh;overflow:auto;padding:22px}
+.modal h3{margin:0 0 12px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid .full{grid-column:1/-1}
+.hint{font-size:12px;color:var(--muted)}
+.kop{display:flex;gap:14px;align-items:center;border-bottom:3px double #0f172a;padding-bottom:12px;margin-bottom:12px}
+.kop img{width:64px;height:64px;object-fit:contain}
+#printArea{display:none}
+@media print{
+  .sidebar,.topbar .no-print,.toolbar,.actions,.no-print{display:none!important}
+  .main{margin:0;max-width:none;padding:0}
+  body{background:#fff}
+  #printArea{display:block!important}
+  #screenArea{display:none!important}
+}
+@media(max-width:900px){
+  .login-card{grid-template-columns:1fr}
+  .login-left{display:none}
+  .sidebar{position:static;width:100%}
+  .main{margin:0}
+  .grid4,.grid2,.form-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage">
+  <div class="login-card">
+    <div class="login-left">
+      <span class="badge">🏫 SIMAS Sekolah v1.0</span>
+      <h1>Aplikasi Surat Menyurat Sekolah</h1>
+      <p>Kelola surat masuk, surat keluar, disposisi, agenda, dan arsip sekolah dalam satu aplikasi offline yang mudah dipakai TU, Guru, dan Kepala Sekolah.</p>
+      <ul class="feat">
+        <li>Nomor surat otomatis + kop sekolah</li>
+        <li>Disposisi & tracking status</li>
+        <li>Upload scan / lampiran PDF & gambar</li>
+        <li>Laporan, cetak agenda & ekspor Excel</li>
+        <li>Data tersimpan aman di browser (offline)</li>
+      </ul>
+    </div>
+    <div class="login-right">
+      <h2>Masuk Aplikasi</h2>
+      <div class="muted">Gunakan akun demo di bawah untuk mencoba peran berbeda.</div>
+      <div class="field"><label>Username</label><input id="inUser" placeholder="cth: admin" value="admin"></div>
+      <div class="field"><label>Password</label><input id="inPass" type="password" placeholder="••••••••" value="admin123"></div>
+      <button class="btn btn-primary" onclick="login()">🔓 Masuk</button>
+      <div class="demo-box">
+        <b>Akun demo:</b><br>
+        👑 <b>admin</b> / admin123 — Administrator (akses penuh)<br>
+        🗂️ <b>tu</b> / tu123 — Tata Usaha (surat masuk & keluar)<br>
+        🎓 <b>kepsek</b> / kepsek123 — Kepala Sekolah (disposisi & laporan)
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <aside class="sidebar">
+    <div class="brand"><h3>📨 SIMAS Sekolah</h3><small id="brandSchool">SDN Contoh 01</small></div>
+    <nav class="nav" id="navMenu">
+      <button data-page="dashboard" class="active" onclick="go('dashboard')">📊 Dashboard</button>
+      <button data-page="masuk" onclick="go('masuk')">📥 Surat Masuk</button>
+      <button data-page="keluar" onclick="go('keluar')">📤 Surat Keluar</button>
+      <button data-page="disposisi" onclick="go('disposisi')">📝 Disposisi</button>
+      <button data-page="agenda" onclick="go('agenda')">📅 Agenda & Laporan</button>
+      <button data-page="arsip" onclick="go('arsip')">🗃️ Arsip</button>
+      <button data-page="pengaturan" onclick="go('pengaturan')">⚙️ Pengaturan</button>
+    </nav>
+    <div class="userbox"><div id="userInfo">-</div><div style="margin-top:8px;display:flex;gap:8px"><button class="btn btn-ghost btn-small" onclick="backup()">💾 Backup</button><button class="btn btn-ghost btn-small" onclick="logout()">Keluar</button></div></div>
+  </aside>
+
+  <div class="main">
+    <div id="screenArea">
+    <div class="topbar">
+      <div><h2 id="pageTitle">📊 Dashboard</h2><div class="muted" id="todayLine"></div></div>
+      <div class="no-print" style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-blue btn-small" onclick="openModalMasuk()">+ Surat Masuk</button>
+        <button class="btn btn-green btn-small" onclick="openModalKeluar()">+ Surat Keluar</button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section id="pg-dashboard" class="page active">
+      <div class="grid4">
+        <div class="card stat"><i>📥</i><b id="stMasuk">0</b><span>Surat Masuk</span></div>
+        <div class="card stat"><i>📤</i><b id="stKeluar">0</b><span>Surat Keluar</span></div>
+        <div class="card stat"><i>📝</i><b id="stDisposisi">0</b><span>Disposisi Aktif</span></div>
+        <div class="card stat"><i>🗃️</i><b id="stArsip">0</b><span>Arsip</span></div>
+      </div>
+      <div style="height:14px"></div>
+      <div class="grid2">
+        <div class="card"><h3 style="margin:0 0 8px">📈 Komposisi Surat</h3><div id="chartBox"></div></div>
+        <div class="card"><h3 style="margin:0 0 8px">⏰ Terbaru & Perlu Tindak Lanjut</h3><div id="recentBox" style="font-size:13.5px;line-height:1.7"></div></div>
+      </div>
+    </section>
+
+    <!-- MASUK -->
+    <section id="pg-masuk" class="page">
+      <div class="card">
+        <h3 style="margin:0">📥 Data Surat Masuk</h3>
+        <div class="muted">Catat setiap surat dari luar sekolah: dinas, orang tua, vendor, dsb.</div>
+        <div class="toolbar">
+          <input id="qMasuk" placeholder="🔍 Cari no / pengirim / perihal..." oninput="renderMasuk()" style="flex:1;min-width:200px">
+          <select id="fMasuk" onchange="renderMasuk()"><option value="">Semua status</option><option>Menunggu</option><option>Diproses</option><option>Selesai</option><option>Diarsipkan</option></select>
+          <button class="btn btn-outline btn-small" onclick="exportCSV('masuk')">⬇ Ekspor CSV</button>
+          <button class="btn btn-outline btn-small" onclick="printAgenda('masuk')">🖨 Cetak</button>
+        </div>
+        <div style="overflow:auto"><table><thead><tr><th>No Agenda / No Surat</th><th>Tanggal</th><th>Pengirim & Perihal</th><th>Sifat</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="tblMasuk"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- KELUAR -->
+    <section id="pg-keluar" class="page">
+      <div class="card">
+        <h3 style="margin:0">📤 Data Surat Keluar</h3>
+        <div class="muted">Surat resmi dari sekolah dengan penomoran otomatis.</div>
+        <div class="toolbar">
+          <input id="qKeluar" placeholder="🔍 Cari no / tujuan / perihal..." oninput="renderKeluar()" style="flex:1;min-width:200px">
+          <button class="btn btn-outline btn-small" onclick="exportCSV('keluar')">⬇ Ekspor CSV</button>
+          <button class="btn btn-outline btn-small" onclick="printAgenda('keluar')">🖨 Cetak</button>
+        </div>
+        <div style="overflow:auto"><table><thead><tr><th>No Surat</th><th>Tanggal</th><th>Tujuan & Perihal</th><th>Penandatangan</th><th>Aksi</th></tr></thead><tbody id="tblKeluar"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- DISPOSISI -->
+    <section id="pg-disposisi" class="page">
+      <div class="card">
+        <h3 style="margin:0">📝 Lembar Disposisi</h3>
+        <div class="muted">Teruskan surat masuk ke bidang / guru dengan instruksi Kepala Sekolah.</div>
+        <div class="toolbar">
+          <button class="btn btn-blue btn-small" onclick="openModalDisposisi()">+ Buat Disposisi</button>
+          <select id="fDisp" onchange="renderDisposisi()"><option value="">Semua status</option><option>Menunggu</option><option>Diproses</option><option>Selesai</option></select>
+          <button class="btn btn-outline btn-small" onclick="printDisposisiAll()">🖨 Cetak Rekap</button>
+        </div>
+        <div style="overflow:auto"><table><thead><tr><th>Tanggal</th><th>Surat Masuk</th><th>Kepada / Instruksi</th><th>Batas Waktu</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="tblDisposisi"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- AGENDA -->
+    <section id="pg-agenda" class="page">
+      <div class="card">
+        <h3 style="margin:0">📅 Agenda & Laporan</h3>
+        <div class="muted">Rekap bulanan untuk laporan kepala sekolah / pengawas.</div>
+        <div class="toolbar">
+          <input type="month" id="lapBulan" onchange="renderAgenda()">
+          <select id="lapJenis" onchange="renderAgenda()"><option value="semua">Semua</option><option value="masuk">Surat Masuk</option><option value="keluar">Surat Keluar</option></select>
+          <button class="btn btn-outline btn-small" onclick="printAgenda('laporan')">🖨 Cetak Laporan</button>
+          <button class="btn btn-outline btn-small" onclick="exportCSV('laporan')">⬇ Ekspor CSV</button>
+        </div>
+        <div id="agendaBox"></div>
+      </div>
+    </section>
+
+    <!-- ARSIP -->
+    <section id="pg-arsip" class="page">
+      <div class="card">
+        <h3 style="margin:0">🗃️ Arsip Surat</h3>
+        <div class="muted">Surat yang sudah selesai & diarsipkan. Tetap bisa dicari dan dicetak.</div>
+        <div class="toolbar"><input id="qArsip" placeholder="🔍 Cari arsip..." oninput="renderArsip()" style="flex:1"></div>
+        <div id="arsipBox"></div>
+      </div>
+    </section>
+
+    <!-- PENGATURAN -->
+    <section id="pg-pengaturan" class="page">
+      <div class="grid2">
+        <div class="card">
+          <h3>🏫 Identitas Sekolah (Kop Surat)</h3>
+          <div class="field"><label>Nama Sekolah</label><input id="sNama"></div>
+          <div class="form-grid">
+            <div class="field"><label>NPSN</label><input id="sNpsn"></div>
+            <div class="field"><label>Telepon</label><input id="sTelp"></div>
+          </div>
+          <div class="field"><label>Alamat</label><textarea id="sAlamat" rows="2"></textarea></div>
+          <div class="form-grid">
+            <div class="field"><label>Kepala Sekolah</label><input id="sKepsek"></div>
+            <div class="field"><label>NIP Kepala Sekolah</label><input id="sNip"></div>
+          </div>
+          <div class="field"><label>Format Nomor Surat Keluar</label><input id="sFormat" placeholder="cth: {nomor}/TU/SDN-01/{bulan_romawi}/{tahun}">
+          <div class="hint">Variabel: {nomor}, {tahun}, {bulan}, {bulan_romawi}. Contoh hasil: 012/TU/SDN-01/IX/2026</div></div>
+          <div class="field"><label>Logo Sekolah (opsional)</label><input type="file" id="sLogo" accept="image/*"></div>
+          <button class="btn btn-primary" onclick="saveSetting()">💾 Simpan Pengaturan</button>
+        </div>
+        <div class="card">
+          <h3>🔧 Data & Keamanan</h3>
+          <p class="muted">Data tersimpan lokal di browser ini (localStorage). Lakukan backup berkala.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-green btn-small" onclick="backup()">💾 Backup JSON</button>
+            <label class="btn btn-amber btn-small" style="cursor:pointer">📂 Restore <input type="file" id="restoreFile" accept=".json" hidden onchange="restore(event)"></label>
+            <button class="btn btn-red btn-small" onclick="resetData()">🗑 Reset + Contoh</button>
+          </div>
+          <hr>
+          <h4>👥 Pengguna</h4>
+          <div id="userList" style="font-size:13.5px"></div>
+          <div class="hint">Ubah password via kode? Untuk versi sekolah, akun dikelola admin di file ini (lihat USERS di kode sumber).</div>
+        </div>
+      </div>
+    </section>
+    </div><!-- screenArea -->
+
+    <div id="printArea"></div>
+  </div>
+</div>
+
+<!-- MODAL MASUK -->
+<div class="modal-bg" id="mMasuk"><div class="modal">
+  <h3 id="mMasukTitle">📥 Tambah Surat Masuk</h3>
+  <input type="hidden" id="mmId">
+  <div class="form-grid">
+    <div class="field"><label>No Agenda</label><input id="mmAgenda" placeholder="otomatis jika kosong"></div>
+    <div class="field"><label>No Surat Asli</label><input id="mmNo" placeholder="cth: 421/123/Dindik/2026"></div>
+    <div class="field"><label>Tgl Surat</label><input type="date" id="mmTglSurat"></div>
+    <div class="field"><label>Tgl Diterima</label><input type="date" id="mmTglTerima"></div>
+    <div class="field full"><label>Pengirim / Instansi</label><input id="mmPengirim" placeholder="cth: Dinas Pendidikan Kab. ..."></div>
+    <div class="field full"><label>Perihal</label><input id="mmPerihal" placeholder="cth: Undangan Rapat K3S"></div>
+    <div class="form-grid full" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;grid-column:1/-1">
+      <div class="field"><label>Sifat</label><select id="mmSifat"><option>Biasa</option><option>Penting</option><option>Segera</option><option>Rahasia</option></select></div>
+      <div class="field"><label>Status</label><select id="mmStatus"><option>Menunggu</option><option>Diproses</option><option>Selesai</option><option>Diarsipkan</option></select></div>
+      <div class="field"><label>Lampiran (lembar)</label><input type="number" id="mmLamp" value="1" min="0"></div>
+    </div>
+    <div class="field full"><label>Keterangan / Isi ringkas</label><textarea id="mmKet" rows="2"></textarea></div>
+    <div class="field full"><label>Scan / File (opsional)</label><input type="file" id="mmFile" accept="image/*,.pdf"><div class="hint" id="mmFileName"></div></div>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px"><button class="btn btn-ghost" onclick="closeModal('mMasuk')">Batal</button><button class="btn btn-blue" onclick="saveMasuk()">💾 Simpan</button></div>
+</div></div>
+
+<!-- MODAL KELUAR -->
+<div class="modal-bg" id="mKeluar"><div class="modal">
+  <h3>📤 Tambah Surat Keluar</h3>
+  <input type="hidden" id="mkId">
+  <div class="form-grid">
+    <div class="field"><label>No Surat (kosongkan = otomatis)</label><input id="mkNo"></div>
+    <div class="field"><label>Tanggal Surat</label><input type="date" id="mkTgl"></div>
+    <div class="field full"><label>Tujuan</label><input id="mkTujuan" placeholder="cth: Orang Tua/Wali Kelas VI"></div>
+    <div class="field full"><label>Perihal</label><input id="mkPerihal" placeholder="cth: Pemberitahuan Study Tour"></div>
+    <div class="field"><label>Sifat</label><select id="mkSifat"><option>Biasa</option><option>Penting</option><option>Segera</option><option>Rahasia</option></select></div>
+    <div class="field"><label>Penandatangan</label><input id="mkTtd" placeholder="cth: Kepala Sekolah"></div>
+    <div class="field full"><label>Isi Ringkas</label><textarea id="mkIsi" rows="3"></textarea></div>
+    <div class="field full"><label>File konsep / scan (opsional)</label><input type="file" id="mkFile" accept="image/*,.pdf"><div class="hint" id="mkFileName"></div></div>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px"><button class="btn btn-ghost" onclick="closeModal('mKeluar')">Batal</button><button class="btn btn-green" onclick="saveKeluar()">💾 Simpan</button></div>
+</div></div>
+
+<!-- MODAL DISPOSISI -->
+<div class="modal-bg" id="mDisp"><div class="modal">
+  <h3>📝 Buat / Edit Disposisi</h3>
+  <input type="hidden" id="mdId">
+  <div class="form-grid">
+    <div class="field full"><label>Surat Masuk terkait</label><select id="mdSurat"></select></div>
+    <div class="field"><label>Tgl Disposisi</label><input type="date" id="mdTgl"></div>
+    <div class="field"><label>Batas Waktu</label><input type="date" id="mdBatas"></div>
+    <div class="field full"><label>Diteruskan Kepada</label><input id="mdKepada" placeholder="cth: Wakasek Kesiswaan / TU / Wali Kelas 6A"></div>
+    <div class="field full"><label>Instruksi / Catatan Kepsek</label><textarea id="mdInstruksi" rows="2" placeholder="cth: Mohon ditindaklanjuti & laporkan hasilnya..."></textarea></div>
+    <div class="field"><label>Status</label><select id="mdStatus"><option>Menunggu</option><option>Diproses</option><option>Selesai</option></select></div>
+    <div class="field"><label>Prioritas</label><select id="mdPrior"><option>Normal</option><option>Penting</option><option>Mendesak</option></select></div>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px"><button class="btn btn-ghost" onclick="closeModal('mDisp')">Batal</button><button class="btn btn-blue" onclick="saveDisposisi()">💾 Simpan</button></div>
+</div></div>
+
+<script>
+const USERS=[
+ {u:'admin',p:'admin123',nama:'Administrator',role:'admin'},
+ {u:'tu',p:'tu123',nama:'Tata Usaha',role:'tu'},
+ {u:'kepsek',p:'kepsek123',nama:'Kepala Sekolah',role:'kepsek'}
+];
+const KEY='simas_sekolah_v1';
+let DB=null, SESSION=null, TEMPFILE_MASUK='', TEMPFILE_KELUAR='', TEMPFILE_NAME='';
+const ROMAWI=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+const $=id=>document.getElementById(id);
+const todayStr=()=>new Date().toISOString().slice(0,10);
+function fmtTgl(s){ if(!s) return '-'; const d=new Date(s+'T00:00:00'); if(isNaN(d)) return s; return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}); }
+function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function defaultDB(){ return {
+ setting:{nama:'SDN Contoh 01',npsn:'20101234',alamat:'Jl. Pendidikan No. 10, Kec. Contoh, Kab. Contoh',telp:'(021) 123456',kepsek:'Drs. Budi Santoso, M.Pd',nip:'19650101 199203 1 001',format:'{nomor}/TU/SDN-01/{bulan_romawi}/{tahun}',logo:'',counter:14},
+ masuk:[
+  {id:'m1',agenda:'001',no:'421/05/Dindik/2026',tglSurat:'2026-09-02',tglTerima:'2026-09-04',pengirim:'Dinas Pendidikan Kabupaten',perihal:'Undangan Rapat Koordinasi K3S',sifat:'Penting',status:'Diproses',lamp:'2',ket:'Rapat korwil, bawa data Dapodik.',file:'',fileName:''},
+  {id:'m2',agenda:'002',no:'12/OSIS/IX/2026',tglSurat:'2026-09-08',tglTerima:'2026-09-09',pengirim:'OSIS SMPN 2',perihal:'Undangan Lomba Pramuka',sifat:'Biasa',status:'Menunggu',lamp:'1',ket:'Lomba tingkat kabupaten.',file:'',fileName:''}
+ ],
+ keluar:[
+  {id:'k1',no:'013/TU/SDN-01/IX/2026',tgl:'2026-09-05',tujuan:'Orang Tua/Wali Kelas VI',perihal:'Pemberitahuan Persiapan ANBK',sifat:'Penting',ttd:'Kepala Sekolah',isi:'Gladi bersih ANBK & pembagian jadwal.',file:'',fileName:''},
+  {id:'k2',no:'014/TU/SDN-01/IX/2026',tgl:'2026-09-10',tujuan:'Dinas Pendidikan Kabupaten',perihal:'Pengajuan Dana BOS Tahap II',sifat:'Biasa',ttd:'Kepala Sekolah',isi:'Laporan penggunaan & pengajuan tahap berikutnya.',file:'',fileName:''}
+ ],
+ disposisi:[
+  {id:'d1',suratId:'m1',tgl:'2026-09-04',batas:'2026-09-12',kepada:'Wakasek Kurikulum + Operator Dapodik',instruksi:'Siapkan data & hadiri rapat, laporkan hasil.',status:'Diproses',prior:'Penting'}
+ ]
+};}
+function load(){ try{ const r=localStorage.getItem(KEY); if(r){DB=JSON.parse(r); return;} }catch(e){} DB=defaultDB(); save(); }
+function save(){ localStorage.setItem(KEY,JSON.stringify(DB)); }
+function uid(p){ return p+Date.now().toString(36)+Math.floor(Math.random()*999); }
+
+// LOGIN
+function login(){
+ const u=$('inUser').value.trim(), p=$('inPass').value;
+ const f=USERS.find(x=>x.u===u&&x.p===p);
+ if(!f){ alert('Username / password salah. Coba akun demo.'); return; }
+ SESSION=f;
+ $('loginPage').style.display='none'; $('app').style.display='block';
+ $('userInfo').innerHTML=`👤 <b>${esc(f.nama)}</b><br><span style="color:#94a3b8">${esc(f.u)} • ${esc(f.role)}</span>`;
+ $('brandSchool').textContent=DB.setting.nama;
+ $('todayLine').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+ if(!$('lapBulan').value) $('lapBulan').value=new Date().toISOString().slice(0,7);
+ loadSettingForm(); renderAll();
+}
+function logout(){ location.reload(); }
+function go(p){
+ document.querySelectorAll('#navMenu button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+ document.querySelectorAll('.page').forEach(s=>s.classList.remove('active'));
+ $('pg-'+p).classList.add('active');
+ $('pageTitle').textContent=document.querySelector(`#navMenu button[data-page="${p}"]`).textContent;
+ if(p==='dashboard') renderDashboard(); if(p==='agenda') renderAgenda(); if(p==='arsip') renderArsip();
+ window.scrollTo({top:0});
+}
+
+// DASHBOARD
+function renderAll(){ renderDashboard(); renderMasuk(); renderKeluar(); renderDisposisi(); renderAgenda(); renderArsip(); renderUsers(); }
+function renderDashboard(){
+ $('stMasuk').textContent=DB.masuk.length; $('stKeluar').textContent=DB.keluar.length;
+ $('stDisposisi').textContent=DB.disposisi.filter(d=>d.status!=='Selesai').length;
+ $('stArsip').textContent=DB.masuk.filter(m=>m.status==='Diarsipkan').length + DB.keluar.filter(k=>k.arsip).length;
+ const tot=Math.max(1,DB.masuk.length+DB.keluar.length);
+ const pm=Math.round(DB.masuk.length/tot*100), pk=100-pm;
+ $('chartBox').innerHTML=`
+  <div class="bar"><span style="width:110px">📥 Masuk (${DB.masuk.length})</span><div class="track"><div class="fill" style="width:${pm}%"></div></div><b>${pm}%</b></div>
+  <div class="bar"><span style="width:110px">📤 Keluar (${DB.keluar.length})</span><div class="track"><div class="fill" style="width:${pk}%"></div></div><b>${pk}%</b></div>
+  <hr><div class="muted">Status surat masuk:</div>
+  ${['Menunggu','Diproses','Selesai','Diarsipkan'].map(s=>{const n=DB.masuk.filter(m=>m.status===s).length;return `<div class="bar"><span style="width:110px">${s}</span><div class="track"><div class="fill" style="width:${DB.masuk.length?n/DB.masuk.length*100:0}%"></div></div><b>${n}</b></div>`}).join('')}`;
+ const need=[...DB.disposisi.filter(d=>d.status!=='Selesai').map(d=>`📝 Disposisi <b>${esc(d.kepada)}</b> — batas ${fmtTgl(d.batas)} <span class="pill p-menunggu">${esc(d.status)}</span>`),
+  ...DB.masuk.filter(m=>m.status==='Menunggu').slice(0,3).map(m=>`📥 <b>${esc(m.perihal)}</b> dari ${esc(m.pengirim)}`)];
+ $('recentBox').innerHTML=need.length?need.map(x=>`<div style="padding:7px 0;border-bottom:1px solid var(--line)">${x}</div>`).join(''):'<span class="muted">Semua pekerjaan selesai. 🎉</span>';
+}
+
+// MASUK
+function pill(s){ const c=s==='Menunggu'?'p-menunggu':s==='Diproses'?'p-diproses':s==='Selesai'?'p-selesai':'p-arsip'; return `<span class="pill ${c}">${esc(s)}</span>`; }
+function renderMasuk(){
+ const q=($('qMasuk').value||'').toLowerCase(), f=$('fMasuk').value;
+ const rows=DB.masuk.filter(m=>(!f||m.status===f)&&(!q||(m.agenda+m.no+m.pengirim+m.perihal).toLowerCase().includes(q))).sort((a,b)=>(b.tglTerima||'').localeCompare(a.tglTerima||''));
+ $('tblMasuk').innerHTML=rows.map(m=>`<tr>
+  <td><b>${esc(m.agenda)}</b><br><span class="muted">${esc(m.no)}</span></td>
+  <td>${fmtTgl(m.tglSurat)}<br><span class="muted">diterima ${fmtTgl(m.tglTerima)}</span></td>
+  <td><b>${esc(m.perihal)}</b><br><span class="muted">${esc(m.pengirim)}</span></td>
+  <td>${esc(m.sifat)}</td><td>${pill(m.status)}</td>
+  <td><div class="actions">
+   ${m.file?`<button class="btn btn-outline btn-small" onclick="lihatFile('${m.id}','masuk')">👁</button>`:''}
+   <button class="btn btn-blue btn-small" onclick="editMasuk('${m.id}')">✏️</button>
+   <button class="btn btn-amber btn-small" onclick="buatDisposisiDari('${m.id}')">📝</button>
+   <button class="btn btn-ghost btn-small" onclick="arsipkanMasuk('${m.id}')">🗃️</button>
+   <button class="btn btn-red btn-small" onclick="hapusData('masuk','${m.id}')">🗑</button>
+  </div></td></tr>`).join('')||`<tr><td colspan="6" style="text-align:center;color:var(--muted)">Belum ada data.</td></tr>`;
+}
+function openModalMasuk(){ $('mMasukTitle').textContent='📥 Tambah Surat Masuk'; $('mmId').value=''; $('mmAgenda').value=String(DB.masuk.length+1).padStart(3,'0'); $('mmNo').value=''; $('mmTglSurat').value=todayStr(); $('mmTglTerima').value=todayStr(); $('mmPengirim').value=''; $('mmPerihal').value=''; $('mmSifat').value='Biasa'; $('mmStatus').value='Menunggu'; $('mmLamp').value='1'; $('mmKet').value=''; TEMPFILE_MASUK=''; $('mmFile').value=''; $('mmFileName').textContent=''; openModal('mMasuk'); }
+function editMasuk(id){ const m=DB.masuk.find(x=>x.id===id); if(!m) return; $('mMasukTitle').textContent='✏️ Edit Surat Masuk'; $('mmId').value=m.id; $('mmAgenda').value=m.agenda; $('mmNo').value=m.no; $('mmTglSurat').value=m.tglSurat; $('mmTglTerima').value=m.tglTerima; $('mmPengirim').value=m.pengirim; $('mmPerihal').value=m.perihal; $('mmSifat').value=m.sifat; $('mmStatus').value=m.status; $('mmLamp').value=m.lamp; $('mmKet').value=m.ket; TEMPFILE_MASUK=m.file||''; $('mmFileName').textContent=m.fileName||''; openModal('mMasuk'); }
+function saveMasuk(){
+ const id=$('mmId').value||uid('m');
+ const o={id,agenda:$('mmAgenda').value||String(DB.masuk.length+1).padStart(3,'0'),no:$('mmNo').value,tglSurat:$('mmTglSurat').value,tglTerima:$('mmTglTerima').value,pengirim:$('mmPengirim').value,perihal:$('mmPerihal').value,sifat:$('mmSifat').value,status:$('mmStatus').value,lamp:$('mmLamp').value,ket:$('mmKet').value,file:TEMPFILE_MASUK,fileName:TEMPFILE_NAME||''};
+ if(!o.pengirim||!o.perihal){ alert('Pengirim & perihal wajib diisi.'); return; }
+ const i=DB.masuk.findIndex(x=>x.id===id); if(i>=0)DB.masuk[i]=o; else DB.masuk.push(o);
+ save(); closeModal('mMasuk'); renderMasuk(); renderDashboard();
+}
+function arsipkanMasuk(id){ const m=DB.masuk.find(x=>x.id===id); if(m){m.status='Diarsipkan'; save(); renderMasuk(); renderDashboard(); renderArsip();} }
+
+// KELUAR
+function genNoKeluar(){
+ const d=new Date(), y=d.getFullYear(), m=d.getMonth()+1;
+ const nomor=String((DB.setting.counter||1)).padStart(3,'0');
+ return DB.setting.format.replace('{nomor}',nomor).replace('{tahun}',y).replace('{bulan}',String(m).padStart(2,'0')).replace('{bulan_romawi}',ROMAWI[m-1]);
+}
+function renderKeluar(){
+ const q=($('qKeluar').value||'').toLowerCase();
+ const rows=DB.keluar.filter(k=>!q||(k.no+k.tujuan+k.perihal).toLowerCase().includes(q)).sort((a,b)=>(b.tgl||'').localeCompare(a.tgl||''));
+ $('tblKeluar').innerHTML=rows.map(k=>`<tr>
+  <td><b>${esc(k.no)}</b><br><span class="muted">${fmtTgl(k.tgl)}</span></td>
+  <td>${fmtTgl(k.tgl)}</td>
+  <td><b>${esc(k.perihal)}</b><br><span class="muted">Kepada: ${esc(k.tujuan)}</span></td>
+  <td>${esc(k.ttd||'-')}</td>
+  <td><div class="actions">
+   ${k.file?`<button class="btn btn-outline btn-small" onclick="lihatFile('${k.id}','keluar')">👁</button>`:''}
+   <button class="btn btn-outline btn-small" onclick="cetakSuratKeluar('${k.id}')">🖨</button>
+   <button class="btn btn-blue btn-small" onclick="editKeluar('${k.id}')">✏️</button>
+   <button class="btn btn-red btn-small" onclick="hapusData('keluar','${k.id}')">🗑</button>
+  </div></td></tr>`).join('')||`<tr><td colspan="5" style="text-align:center;color:var(--muted)">Belum ada data.</td></tr>`;
+}
+function openModalKeluar(){ $('mkId').value=''; $('mkNo').value=genNoKeluar(); $('mkTgl').value=todayStr(); $('mkTujuan').value=''; $('mkPerihal').value=''; $('mkSifat').value='Biasa'; $('mkTtd').value=DB.setting.kepsek||'Kepala Sekolah'; $('mkIsi').value=''; TEMPFILE_KELUAR=''; $('mkFile').value=''; $('mkFileName').textContent=''; openModal('mKeluar'); }
+function editKeluar(id){ const k=DB.keluar.find(x=>x.id===id); if(!k)return; $('mkId').value=k.id; $('mkNo').value=k.no; $('mkTgl').value=k.tgl; $('mkTujuan').value=k.tujuan; $('mkPerihal').value=k.perihal; $('mkSifat').value=k.sifat; $('mkTtd').value=k.ttd; $('mkIsi').value=k.isi; TEMPFILE_KELUAR=k.file||''; $('mkFileName').textContent=k.fileName||''; openModal('mKeluar'); }
+function saveKeluar(){
+ const id=$('mkId').value||uid('k');
+ const isNew=!$('mkId').value;
+ const o={id,no:$('mkNo').value||genNoKeluar(),tgl:$('mkTgl').value,tujuan:$('mkTujuan').value,perihal:$('mkPerihal').value,sifat:$('mkSifat').value,ttd:$('mkTtd').value,isi:$('mkIsi').value,file:TEMPFILE_KELUAR,fileName:TEMPFILE_NAME||''};
+ if(!o.tujuan||!o.perihal){ alert('Tujuan & perihal wajib diisi.'); return; }
+ const i=DB.keluar.findIndex(x=>x.id===id); if(i>=0)DB.keluar[i]=o; else {DB.keluar.push(o); if(isNew) DB.setting.counter=(DB.setting.counter||1)+1;}
+ save(); closeModal('mKeluar'); renderKeluar(); renderDashboard();
+}
+
+// DISPOSISI
+function openModalDisposisi(suratId){
+ const sel=$('mdSurat'); sel.innerHTML=DB.masuk.map(m=>`<option value="${m.id}">${esc(m.agenda)} — ${esc(m.perihal)} (${esc(m.pengirim)})</option>`).join('');
+ if(suratId) sel.value=suratId;
+ $('mdId').value=''; $('mdTgl').value=todayStr(); $('mdBatas').value=todayStr(); $('mdKepada').value=''; $('mdInstruksi').value=''; $('mdStatus').value='Menunggu'; $('mdPrior').value='Normal';
+ openModal('mDisp');
+}
+function buatDisposisiDari(id){ openModalDisposisi(id); }
+function saveDisposisi(){
+ const id=$('mdId').value||uid('d');
+ const o={id,suratId:$('mdSurat').value,tgl:$('mdTgl').value,batas:$('mdBatas').value,kepada:$('mdKepada').value,instruksi:$('mdInstruksi').value,status:$('mdStatus').value,prior:$('mdPrior').value};
+ if(!o.suratId||!o.kepada){ alert('Pilih surat & isi tujuan disposisi.'); return; }
+ const i=DB.disposisi.findIndex(x=>x.id===id); if(i>=0)DB.disposisi[i]=o; else DB.disposisi.push(o);
+ const sm=DB.masuk.find(m=>m.id===o.suratId); if(sm&&sm.status==='Menunggu') sm.status='Diproses';
+ save(); closeModal('mDisp'); renderDisposisi(); renderMasuk(); renderDashboard();
+}
+function renderDisposisi(){
+ const f=$('fDisp').value;
+ const rows=DB.disposisi.filter(d=>!f||d.status===f).sort((a,b)=>(a.batas||'').localeCompare(b.batas||''));
+ $('tblDisposisi').innerHTML=rows.map(d=>{ const m=DB.masuk.find(x=>x.id===d.suratId); return `<tr>
+  <td>${fmtTgl(d.tgl)}<br><span class="pill ${d.prior==='Mendesak'?'p-menunggu':'p-arsip'}">${esc(d.prior)}</span></td>
+  <td><b>${esc(m?m.perihal:'(surat dihapus)')}</b><br><span class="muted">${esc(m?m.pengirim:'')} • No. ${esc(m?m.no:'')}</span></td>
+  <td>Kepada: <b>${esc(d.kepada)}</b><br><span class="muted">${esc(d.instruksi)}</span></td>
+  <td>${fmtTgl(d.batas)}</td><td>${pill(d.status)}</td>
+  <td><div class="actions"><button class="btn btn-outline btn-small" onclick="cetakDisposisi('${d.id}')">🖨</button><button class="btn btn-blue btn-small" onclick="editDisposisi('${d.id}')">✏️</button><button class="btn btn-green btn-small" onclick="selesaiDisposisi('${d.id}')">✅</button><button class="btn btn-red btn-small" onclick="hapusData('disposisi','${d.id}')">🗑</button></div></td></tr>`}).join('')||`<tr><td colspan="6" style="text-align:center;color:var(--muted)">Belum ada disposisi.</td></tr>`;
+}
+function editDisposisi(id){ const d=DB.disposisi.find(x=>x.id===id); if(!d)return; openModalDisposisi(d.suratId); $('mdId').value=d.id; $('mdTgl').value=d.tgl; $('mdBatas').value=d.batas; $('mdKepada').value=d.kepada; $('mdInstruksi').value=d.instruksi; $('mdStatus').value=d.status; $('mdPrior').value=d.prior; }
+function selesaiDisposisi(id){ const d=DB.disposisi.find(x=>x.id===id); if(d){d.status='Selesai'; save(); renderDisposisi(); renderDashboard();} }
+
+// AGENDA & ARSIP
+function renderAgenda(){
+ const bl=$('lapBulan').value, jn=$('lapJenis').value;
+ const inM=DB.masuk.filter(m=>(m.tglTerima||'').startsWith(bl||'xxxx')&&(jn==='semua'||jn==='masuk'));
+ const inK=DB.keluar.filter(k=>(k.tgl||'').startsWith(bl||'xxxx')&&(jn==='semua'||jn==='keluar'));
+ $('agendaBox').innerHTML=`<div class="grid2"><div><h4>📥 Surat Masuk (${inM.length})</h4>${inM.map(m=>`<div style="padding:6px 0;border-bottom:1px solid var(--line);font-size:13px"><b>${esc(m.agenda)}</b> • ${esc(m.perihal)}<br><span class="muted">${fmtTgl(m.tglTerima)} • ${esc(m.pengirim)}</span></div>`).join('')||'<span class="muted">Nihil.</span>'}</div>
+ <div><h4>📤 Surat Keluar (${inK.length})</h4>${inK.map(k=>`<div style="padding:6px 0;border-bottom:1px solid var(--line);font-size:13px"><b>${esc(k.no)}</b> • ${esc(k.perihal)}<br><span class="muted">${fmtTgl(k.tgl)} • ${esc(k.tujuan)}</span></div>`).join('')||'<span class="muted">Nihil.</span>'}</div></div>`;
+}
+function renderArsip(){
+ const q=($('qArsip').value||'').toLowerCase();
+ const am=DB.masuk.filter(m=>m.status==='Diarsipkan'&&(!q||(m.perihal+m.pengirim+m.no).toLowerCase().includes(q)));
+ $('arsipBox').innerHTML=`<h4>📥 Arsip Surat Masuk (${am.length})</h4>`+(am.map(m=>`<div style="padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px">🗃️ <b>${esc(m.agenda)}/${esc(m.no)}</b> — ${esc(m.perihal)} <span class="muted">(${fmtTgl(m.tglTerima)})</span> <button class="btn btn-outline btn-small" onclick="kembalikanArsip('${m.id}')">↩ Aktifkan</button></div>`).join('')||'<span class="muted">Belum ada arsip.</span>');
+}
+function kembalikanArsip(id){ const m=DB.masuk.find(x=>x.id===id); if(m){m.status='Selesai'; save(); renderArsip(); renderMasuk(); renderDashboard();} }
+
+// UMUM
+function hapusData(tipe,id){
+ if(!confirm('Hapus data ini?')) return;
+ if(tipe==='masuk') DB.masuk=DB.masuk.filter(x=>x.id!==id);
+ if(tipe==='keluar') DB.keluar=DB.keluar.filter(x=>x.id!==id);
+ if(tipe==='disposisi') DB.disposisi=DB.disposisi.filter(x=>x.id!==id);
+ save(); renderAll();
+}
+function openModal(id){ $(id).classList.add('open'); }
+function closeModal(id){ $(id).classList.remove('open'); }
+function lihatFile(id,tipe){
+ const arr=tipe==='masuk'?DB.masuk:DB.keluar; const o=arr.find(x=>x.id===id);
+ if(!o||!o.file){ alert('Tidak ada file.'); return; }
+ const w=window.open('','_blank'); w.document.write(`<title>${esc(o.fileName||'Lampiran')}</title><embed src="${o.file}" style="width:100%;height:100vh">`);
+}
+function kopHTML(){
+ const s=DB.setting;
+ return `<div class="kop">${s.logo?`<img src="${s.logo}">`:`<div style="font-size:44px">🏫</div>`}<div style="text-align:center;flex:1"><div style="font-size:19px;font-weight:800">${esc(s.nama)}</div><div style="font-size:12px">${esc(s.alamat)}</div><div style="font-size:12px">NPSN: ${esc(s.npsn)} • Telp: ${esc(s.telp)}</div></div></div>`;
+}
+function cetakSuratKeluar(id){
+ const k=DB.keluar.find(x=>x.id===id); if(!k)return; const s=DB.setting;
+ $('printArea').innerHTML=`${kopHTML()}<div style="text-align:center;margin:10px 0"><b><u>SURAT ${esc(k.perihal).toUpperCase()}</u></b><br>Nomor: ${esc(k.no)}</div>
+ <table style="font-size:14px"><tr><td>Kepada</td><td>: ${esc(k.tujuan)}</td></tr><tr><td>Perihal</td><td>: ${esc(k.perihal)}</td></tr><tr><td>Tanggal</td><td>: ${fmtTgl(k.tgl)}</td></tr><tr><td>Sifat</td><td>: ${esc(k.sifat)}</td></tr></table>
+ <p style="font-size:14px;line-height:1.8">${esc(k.isi).replace(/\n/g,'<br>')}</p>
+ <div style="display:flex;justify-content:flex-end;margin-top:30px"><div style="text-align:center">Mengetahui,<br>${esc(s.nama)}<br><b>${esc(s.kepsek)}</b><br>NIP. ${esc(s.nip)}<br><br><br><br>(${esc(k.ttd)})</div></div>`;
+ window.print();
+}
+function cetakDisposisi(id){
+ const d=DB.disposisi.find(x=>x.id===id); if(!d)return; const m=DB.masuk.find(x=>x.id===d.suratId);
+ $('printArea').innerHTML=`${kopHTML()}<div style="text-align:center"><b><u>LEMBAR DISPOSISI</u></b></div>
+ <table border="1" cellpadding="8" cellspacing="0" style="width:100%;font-size:13.5px;margin-top:10px;border-collapse:collapse">
+ <tr><td><b>No Agenda / No Surat</b></td><td>${esc(m?m.agenda:'')} / ${esc(m?m.no:'')}</td></tr>
+ <tr><td><b>Dari / Perihal</b></td><td>${esc(m?m.pengirim:'')} / ${esc(m?m.perihal:'')}</td></tr>
+ <tr><td><b>Diteruskan Kepada</b></td><td><b>${esc(d.kepada)}</b></td></tr>
+ <tr><td><b>Instruksi</b></td><td>${esc(d.instruksi)}</td></tr>
+ <tr><td><b>Batas Waktu</b></td><td>${fmtTgl(d.batas)} (Prioritas: ${esc(d.prior)})</td></tr></table>
+ <div style="display:flex;justify-content:flex-end;margin-top:24px"><div style="text-align:center">Kepala Sekolah<br><br><br><br><b>${esc(DB.setting.kepsek)}</b><br>NIP. ${esc(DB.setting.nip)}</div></div>`;
+ window.print();
+}
+function printAgenda(tipe){
+ let rows='', title='';
+ if(tipe==='masuk'){ title='BUKU AGENDA SURAT MASUK'; rows=DB.masuk.map((m,i)=>`<tr><td>${i+1}</td><td>${esc(m.agenda)}</td><td>${esc(m.no)}</td><td>${fmtTgl(m.tglTerima)}</td><td>${esc(m.pengirim)}</td><td>${esc(m.perihal)}</td></tr>`).join(''); }
+ else if(tipe==='keluar'){ title='BUKU AGENDA SURAT KELUAR'; rows=DB.keluar.map((k,i)=>`<tr><td>${i+1}</td><td>${esc(k.no)}</td><td>${fmtTgl(k.tgl)}</td><td>${esc(k.tujuan)}</td><td>${esc(k.perihal)}</td></tr>`).join(''); }
+ else { title='LAPORAN SURAT BULAN '+esc($('lapBulan').value); rows=DB.masuk.map(m=>`<tr><td>Masuk</td><td>${esc(m.agenda)}</td><td>${fmtTgl(m.tglTerima)}</td><td>${esc(m.perihal)}</td></tr>`).join('')+DB.keluar.map(k=>`<tr><td>Keluar</td><td>${esc(k.no)}</td><td>${fmtTgl(k.tgl)}</td><td>${esc(k.perihal)}</td></tr>`).join(''); }
+ $('printArea').innerHTML=`${kopHTML()}<div style="text-align:center"><b><u>${title}</u></b></div><table border="1" cellpadding="7" cellspacing="0" style="width:100%;font-size:12.5px;margin-top:10px;border-collapse:collapse"><tbody>${rows||'<tr><td>Nihil</td></tr>'}</tbody></table><div style="text-align:right;margin-top:20px;font-size:13px">Mengetahui, Kepala Sekolah<br><br><br><b>${esc(DB.setting.kepsek)}</b></div>`;
+ window.print();
+}
+function printDisposisiAll(){
+ const rows=DB.disposisi.map((d,i)=>{const m=DB.masuk.find(x=>x.id===d.suratId);return `<tr><td>${i+1}</td><td>${fmtTgl(d.tgl)}</td><td>${esc(m?m.perihal:'')}</td><td>${esc(d.kepada)}</td><td>${fmtTgl(d.batas)}</td><td>${esc(d.status)}</td></tr>`}).join('');
+ $('printArea').innerHTML=`${kopHTML()}<div style="text-align:center"><b><u>REKAP DISPOSISI</u></b></div><table border="1" cellpadding="7" cellspacing="0" style="width:100%;font-size:12.5px;margin-top:10px;border-collapse:collapse"><tr><th>No</th><th>Tgl</th><th>Perihal</th><th>Kepada</th><th>Batas</th><th>Status</th></tr>${rows}</table>`;
+ window.print();
+}
+function exportCSV(tipe){
+ let data=[], name='';
+ if(tipe==='masuk'){data=DB.masuk;name='surat-masuk.csv';}
+ else if(tipe==='keluar'){data=DB.keluar;name='surat-keluar.csv';}
+ else{data=[...DB.masuk.map(m=>({jenis:'Masuk',no:m.no,tgl:m.tglTerima,perihal:m.perihal})),...DB.keluar.map(k=>({jenis:'Keluar',no:k.no,tgl:k.tgl,perihal:k.perihal}))];name='laporan.csv';}
+ if(!data.length){alert('Tidak ada data.');return;}
+ const head=Object.keys(data[0]).filter(k=>k!=='file');
+ const csv=[head.join(';')].concat(data.map(o=>head.map(h=>`"${String(o[h]??'').replace(/"/g,'""')}"`).join(';'))).join('\n');
+ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:'text/csv'})); a.download=name; a.click();
+}
+function backup(){
+ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(DB,null,2)],{type:'application/json'})); a.download='backup-simas-'+todayStr()+'.json'; a.click();
+}
+function restore(e){
+ const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+ r.onload=()=>{ try{DB=JSON.parse(r.result); save(); renderAll(); loadSettingForm(); alert('Restore berhasil.');}catch(_){alert('File tidak valid.')}}; r.readAsText(f);
+}
+function resetData(){ if(confirm('Kembalikan ke data contoh? Data saat ini hilang.')){DB=defaultDB(); save(); renderAll(); loadSettingForm();} }
+function loadSettingForm(){ const s=DB.setting; $('sNama').value=s.nama; $('sNpsn').value=s.npsn; $('sAlamat').value=s.alamat; $('sTelp').value=s.telp; $('sKepsek').value=s.kepsek; $('sNip').value=s.nip; $('sFormat').value=s.format; }
+function saveSetting(){
+ DB.setting.nama=$('sNama').value; DB.setting.npsn=$('sNpsn').value; DB.setting.alamat=$('sAlamat').value; DB.setting.telp=$('sTelp').value; DB.setting.kepsek=$('sKepsek').value; DB.setting.nip=$('sNip').value; DB.setting.format=$('sFormat').value||DB.setting.format;
+ save(); $('brandSchool').textContent=DB.setting.nama; alert('Pengaturan disimpan.');
+}
+function renderUsers(){ $('userList').innerHTML=USERS.map(u=>`👤 <b>${esc(u.nama)}</b> — <code>${esc(u.u)}</code> (${esc(u.role)})`).join('<br>'); }
+
+// file input handlers
+document.addEventListener('change',e=>{
+ if(e.target.id==='mmFile'&&e.target.files[0]){ const f=e.target.files[0]; TEMPFILE_NAME=f.name; $('mmFileName').textContent=f.name; const r=new FileReader(); r.onload=()=>TEMPFILE_MASUK=r.result; r.readAsDataURL(f); }
+ if(e.target.id==='mkFile'&&e.target.files[0]){ const f=e.target.files[0]; TEMPFILE_NAME=f.name; $('mkFileName').textContent=f.name; const r=new FileReader(); r.onload=()=>TEMPFILE_KELUAR=r.result; r.readAsDataURL(f); }
+ if(e.target.id==='sLogo'&&e.target.files[0]){ const r=new FileReader(); r.onload=()=>{DB.setting.logo=r.result; save(); alert('Logo tersimpan.');}; r.readAsDataURL(e.target.files[0]); }
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&$('loginPage').style.display!=='none'){login();} });
+load();
+</script>
+<script>window.__CF$cv$params={r:'a3c568ee9dc69d1a',t:'MTc4OTYxOTc4Ng==',u:'01a0ada6d4277269a46d84b4ed57544b',ut:'IwrGUlXqMj4i90_VCuxYEdda2Cuk2NBk2S4Xu6Xwj40-1789619786-1.2.1.1-QdKPQlrZ5IEn59cGCS27CDugC1QlJVxkLcQ_8tIaJSl8UD8.lRF3mXZzwjSzUorONAZ4A0zF8JlXgwYHy4NwD6XU.SfK1oGMSN.63jxyuEM',i:60};(function(){if(!document.body)return;var s=document.createElement('script');s.src='/cdn-cgi/challenge-platform/scripts/precursor/main.js';document.head.appendChild(s);})();</script></body>
+</html>
